@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelvin - Live Market Predictions</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 22h20L12 2z" fill="url(#paint0_linear)"/>
+                    <defs>
+                        <linearGradient id="paint0_linear" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FFB055"/>
+                            <stop offset="1" stop-color="#00C1A3"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div>
+                <h1>KELVIN</h1>
+                <p>Market temperature, read live</p>
+            </div>
+        </div>
+        <div class="header-markets" id="header-markets">
+            <!-- Market pills will be generated here -->
+        </div>
+    </header>
+
+    <div class="top-bar">
+        <div class="connection-status">
+            <div class="status-indicator" id="global-status-dot"></div>
+            <span id="global-status-text">disconnected — reconnecting...</span>
+            <button class="text-btn" id="show-log-btn">show connection log</button>
+        </div>
+        <button class="primary-btn login-btn" id="login-modal-btn">Login to Deriv</button>
+    </div>
+
+    <main class="dashboard">
+        <div class="panel gauge-panel">
+            <div class="panel-header">
+                <h2>MOMENTUM GAUGE</h2>
+                <p>0K cold - 100K hot</p>
+            </div>
+            <div class="gauge-container">
+                <svg viewBox="0 0 200 120" class="gauge-svg">
+                    <!-- Background arc -->
+                    <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#2a2e39" stroke-width="12" stroke-linecap="round" />
+                    <!-- Gradient arc -->
+                    <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round" id="gauge-active-arc" stroke-dasharray="251.2" stroke-dashoffset="125.6"/>
+                    <defs>
+                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00C1A3" />
+                            <stop offset="50%" stop-color="#FFB055" />
+                            <stop offset="100%" stop-color="#FF4C4C" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Needle -->
+                    <g id="gauge-needle" style="transform-origin: 100px 100px; transform: rotate(0deg); transition: transform 0.3s ease;">
+                        <line x1="100" y1="100" x2="100" y2="30" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                        <circle cx="100" cy="100" r="6" fill="#fff" />
+                    </g>
+                </svg>
+            </div>
+            <div class="gauge-value">
+                <span class="value-text" id="momentum-val">50K</span>
+                <span class="value-dot">•</span>
+                <span class="value-label" id="momentum-label">neutral</span>
+            </div>
+        </div>
+
+        <div class="panel action-panel">
+            <div class="panel-header row-between">
+                <h2 id="active-market-name">VOLATILITY 100 INDEX</h2>
+                <div class="connection-status small">
+                    <div class="status-indicator" id="market-status-dot"></div>
+                    <span id="market-status-text">disconnected — reconnecting...</span>
+                </div>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="progress-bar"></div>
+            </div>
+            
+            <div class="price-display" id="current-price-display">
+                waiting for data...
+            </div>
+
+            <div class="options-group">
+                <div class="toggle-group" id="prediction-type">
+                    <button class="toggle-btn active" data-val="rise_fall">Rise / Fall</button>
+                    <button class="toggle-btn" data-val="even_odd">Even / Odd</button>
+                    <button class="toggle-btn" data-val="over_under">Over / Under</button>
+                </div>
+            </div>
+
+            <div class="options-group" id="digit-selection-group" style="display: none;">
+                <label>Select Digit (0-9):</label>
+                <div class="toggle-group digit-group" id="digit-value">
+                    <button class="toggle-btn active" data-val="0">0</button>
+                    <button class="toggle-btn" data-val="1">1</button>
+                    <button class="toggle-btn" data-val="2">2</button>
+                    <button class="toggle-btn" data-val="3">3</button>
+                    <button class="toggle-btn" data-val="4">4</button>
+                    <button class="toggle-btn" data-val="5">5</button>
+                    <button class="toggle-btn" data-val="6">6</button>
+                    <button class="toggle-btn" data-val="7">7</button>
+                    <button class="toggle-btn" data-val="8">8</button>
+                    <button class="toggle-btn" data-val="9">9</button>
+                </div>
+            </div>
+
+            <div class="options-group">
+                <div class="toggle-group" id="duration-ticks">
+                    <button class="toggle-btn" data-val="1">1 tick</button>
+                    <button class="toggle-btn" data-val="2">2 ticks</button>
+                    <button class="toggle-btn active" data-val="3">3 ticks</button>
+                    <button class="toggle-btn" data-val="4">4 ticks</button>
+                    <button class="toggle-btn" data-val="5">5 ticks</button>
+                </div>
+            </div>
+
+            <div class="action-buttons" id="action-buttons-container">
+                <button class="action-btn up-btn" id="btn-up">↑ Predict Rise</button>
+                <button class="action-btn down-btn" id="btn-down">↓ Predict Fall</button>
+            </div>
+
+            <p class="login-warning" id="auth-warning">
+                Not logged in — predictions are tracked for accuracy only, no real trade is placed.
+            </p>
+        </div>
+    </main>
+
+    <div class="market-cards" id="market-cards">
+        <!-- Market cards generated via JS -->
+    </div>
+
+    <div class="stats-container">
+        <div class="panel stats-panel">
+            <h2>PREDICTION ACCURACY</h2>
+            <div class="accuracy-bar-container">
+                <div class="accuracy-bar" id="accuracy-bar" style="width: 0%;"></div>
+            </div>
+            <div class="accuracy-value" id="accuracy-text">—%</div>
+            <p class="subtext" id="accuracy-subtext">no predictions yet</p>
+        </div>
+
+        <div class="panel history-panel">
+            <h2>RECENT PREDICTIONS</h2>
+            <div class="history-list" id="history-list">
+                <div class="empty-state">no predictions yet</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Kelvin reads live tick data from the Deriv API. Trading involves risk — synthetic indices and derivatives can result in the loss of your stake.</p>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="login-modal" style="display: none;">
+        <div class="modal">
+            <h2>Login to Deriv</h2>
+            <p>Enter your Deriv App ID, API Token, and Account ID to trade with real money.</p>
+            <div class="form-group">
+                <label for="app-id">App ID (e.g. 1089 or alphanumeric)</label>
+                <input type="text" id="app-id" placeholder="App ID">
+            </div>
+            <div class="form-group">
+                <label for="api-token">API Token (Requires Read & Trade scopes)</label>
+                <input type="password" id="api-token" placeholder="Your personal API token">
+            </div>
+            <div class="form-group">
+                <label for="account-id">Account ID (e.g. CR1234567 or VRTC1234567)</label>
+                <input type="text" id="account-id" placeholder="Your Account ID">
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="text-btn" id="cancel-login">Cancel</button>
+                <button class="primary-btn" id="submit-login">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Log Modal -->
+    <div class="modal-overlay" id="log-modal" style="display: none;">
+        <div class="modal" style="max-width: 600px; width: 90%;">
+            <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0;">Connection Log</h2>
+                <button class="text-btn" id="close-log-btn" style="margin: 0;">Close</button>
+            </div>
+            <div class="log-container" id="log-container" style="background: var(--bg-dark); padding: 10px; border-radius: 4px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; margin-top: 15px; color: var(--text-primary); text-align: left;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Banner -->
+    <div class="notification-banner" id="prediction-banner" style="display:none;">
+        <span id="banner-text">Iko Sawa</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
